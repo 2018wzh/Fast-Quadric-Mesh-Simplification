@@ -1,0 +1,12 @@
+{
+    "name": "fast-quadric-mesh-simplification",
+    "version": "0.1.0",
+    "dependencies": [
+        "freeglut",
+        "glew",
+        {
+            "name": "devil",
+            "default-features": false
+        }
+    ]
+}

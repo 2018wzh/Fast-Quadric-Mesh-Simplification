@@ -1,0 +1,100 @@
+# Build directories
+/build/
+/bin/
+/lib/
+/out/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CMakeLists.txt.user
+Makefile
+install_manifest.txt
+Testing/
+CTestTestfile.cmake
+compile_commands.json
+
+# Build configurations
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+*.user
+*.suo
+*.userprefs
+*.ncb
+.vs/
+
+# Visual Studio / MSVC
+*.vcxproj.user
+*.vcxproj.*.user
+*.pdb
+*.ilk
+*.ipch/
+*.aps
+*.log
+
+# Xcode
+build/
+*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+*.xcodeproj/project.xcworkspace/
+
+# Object files and binaries
+*.o
+*.obj
+*.lo
+*.slo
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.lai
+*.la
+
+# Temporary files
+*~
+*.swp
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tags and caches
+tags
+TAGS
+ctags
+*.cache
+.cache/
+
+# Logs
+*.log
+
+# vcpkg (ignore build artifacts, caches and generated installed tree)
+# Keep vcpkg.json and vcpkg-configuration.json tracked
+/vcpkg_installed/
+/installed/
+/buildtrees/
+/packages/
+/downloads/
+/downloads/*
+/scripts/buildsystems/vcpkg.cmake
+vcpkg.exe
+.vcpkg-root
+
+# Optional: ignore local cmake configuration files
+localconfig.cmake
+*.local.cmake
