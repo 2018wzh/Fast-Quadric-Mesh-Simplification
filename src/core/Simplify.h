@@ -356,7 +356,7 @@ void compact_mesh();
 //                 more iterations yield higher quality
 //
 
-void simplify_mesh(int target_count, double agressiveness = 7, bool verbose = false) {
+void simplify_mesh(int target_count, double agressiveness = 7) {
     // init
     loopi(0, triangles.size()) { triangles[i].deleted = 0; }
 
@@ -387,10 +387,8 @@ void simplify_mesh(int target_count, double agressiveness = 7, bool verbose = fa
         double threshold = 0.000000001 * pow(double(iteration + 3), agressiveness);
 
         // target number of triangles reached ? Then break
-        if ((verbose) && (iteration % 5 == 0)) {
-            printf("iteration %d - triangles %d threshold %g\n", iteration,
-                   triangle_count - deleted_triangles, threshold);
-        }
+        printf("iteration %d - triangles %d threshold %g\n", iteration,
+               triangle_count - deleted_triangles, threshold);
 
         // remove vertices & mark deleted triangles
         loopi(0, triangles.size()) {
@@ -459,17 +457,20 @@ void simplify_mesh(int target_count, double agressiveness = 7, bool verbose = fa
     compact_mesh();
 } // simplify_mesh()
 
-void simplify_mesh_lossless(bool verbose = false) {
+void simplify_mesh_lossless(int target_count) {
     // init
     loopi(0, triangles.size()) triangles[i].deleted = 0;
 
     // main iteration loop
-    int deleted_triangles = 0;
+    int deleted_triangles      = 0;
+    int last_deleted_triangles = 0;
     std::vector<int> deleted0, deleted1;
     int triangle_count = triangles.size();
     // int iteration = 0;
     // loop(iteration,0,100)
     for (int iteration = 0; iteration < 9999; iteration++) {
+        if (triangle_count - deleted_triangles <= target_count)
+            break;
         // update mesh constantly
         update_mesh(iteration);
         // clear dirty flag
@@ -481,9 +482,8 @@ void simplify_mesh_lossless(bool verbose = false) {
         // If it does not, try to adjust the 3 parameters
         //
         double threshold = DBL_EPSILON; // 1.0E-3 EPS;
-        if (verbose) {
-            printf("lossless iteration %d\n", iteration);
-        }
+        printf("iteration %d - triangles %d threshold %g\n", iteration,
+               triangle_count - deleted_triangles, threshold);
 
         // remove vertices & mark deleted triangles
         loopi(0, triangles.size()) {
@@ -544,10 +544,12 @@ void simplify_mesh_lossless(bool verbose = false) {
                 v0.tcount = tcount;
                 break;
             }
+            if (triangle_count - deleted_triangles <= target_count)
+                break;
         }
-        if (deleted_triangles <= 0)
+        if (deleted_triangles == last_deleted_triangles)
             break;
-        deleted_triangles = 0;
+        last_deleted_triangles = deleted_triangles;
     } // for each iteration
     // clean up mesh
     compact_mesh();

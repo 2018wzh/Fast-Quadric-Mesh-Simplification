@@ -20,20 +20,25 @@
 
 #include "Simplify.h"
 #include <stdio.h>
+#include <string.h>
 #include <time.h> // clock_t, clock, CLOCKS_PER_SEC
+#include <vector>
 
 void showHelp(const char *argv[]) {
     const char *cstr = (argv[0]);
-    printf("Usage: %s <input> <output> <ratio> <agressiveness)\n", cstr);
+    printf("Usage: %s <input> <output> [ratio] [agressiveness] [--lossless]\n", cstr);
     printf(" Input: name of existing OBJ format mesh\n");
     printf(" Output: name for decimated OBJ format mesh\n");
     printf(" Ratio: (default = 0.5) for example 0.2 will decimate 80%% of triangles\n");
     printf(" Agressiveness: (default = 7.0) faster or better decimation\n");
+    printf(" --lossless: use lossless simplification mode\n");
     printf("Examples :\n");
 #if defined(_WIN64) || defined(_WIN32)
     printf("  %s c:\\dir\\in.obj c:\\dir\\out.obj 0.2\n", cstr);
+    printf("  %s c:\\dir\\in.obj c:\\dir\\out.obj 0.5 --lossless\n", cstr);
 #else
     printf("  %s ~/dir/in.obj ~/dir/out.obj 0.2\n", cstr);
+    printf("  %s ~/dir/in.obj ~/dir/out.obj --lossless\n", cstr);
 #endif
 } // showHelp()
 
@@ -51,7 +56,7 @@ bool is_obj(const char *file_path) { return is_extension(file_path, "obj"); }
 bool is_mz3(const char *file_path) { return is_extension(file_path, "mz3"); }
 
 int simplify(const char *file_path, const char *export_path, float reduceFraction,
-             float agressiveness) {
+             float agressiveness, bool lossless = false) {
 
     printf("Mesh Simplification (C)2014 by Sven Forstmann in 2014, MIT License (%zu-bit)\n",
            sizeof(size_t) * 8);
@@ -90,8 +95,10 @@ int simplify(const char *file_path, const char *export_path, float reduceFractio
     printf("Input: %zu vertices, %zu triangles (target %d)\n", Simplify::vertices.size(),
            Simplify::triangles.size(), target_count);
     int startSize = Simplify::triangles.size();
-    Simplify::simplify_mesh(target_count, agressiveness, true);
-    // Simplify::simplify_mesh_lossless( false);
+    if (lossless)
+        Simplify::simplify_mesh_lossless(target_count);
+    else
+        Simplify::simplify_mesh(target_count, agressiveness);
     if (Simplify::triangles.size() >= startSize) {
         printf("Unable to reduce mesh.\n");
         return EXIT_FAILURE;
@@ -128,23 +135,37 @@ int simplify(const char *file_path, float reduceFraction, const char *export_pat
 #else
 
 int main(int argc, const char *argv[]) {
-    if (argc < 3) {
+    // Collect positional args and detect flags (e.g., --lossless)
+    bool lossless = false;
+    std::vector<const char *> positional;
+    for (int i = 1; i < argc; i++) {
+        const char *arg = argv[i];
+        if (strcmp(arg, "--lossless") == 0) {
+            lossless = true;
+            continue;
+        }
+        positional.push_back(arg);
+    }
+
+    if (positional.size() < 2) {
         showHelp(argv);
         return EXIT_SUCCESS;
     }
 
-    const char *file_path   = argv[1];
-    const char *export_path = argv[2];
-    float reduceFraction    = 0.5;
-    if (argc > 3) {
-        reduceFraction = atof(argv[3]);
+    const char *file_path   = positional[0];
+    const char *export_path = positional[1];
+
+    float reduceFraction = 0.5f;
+    if (positional.size() > 2) {
+        reduceFraction = (float)atof(positional[2]);
     }
 
-    float agressiveness = 7.0;
-    if (argc > 4) {
-        agressiveness = atof(argv[4]);
+    float agressiveness = 7.0f;
+    if (positional.size() > 3) {
+        agressiveness = (float)atof(positional[3]);
     }
-    return simplify(file_path, export_path, reduceFraction, agressiveness);
+
+    return simplify(file_path, export_path, reduceFraction, agressiveness, lossless);
 }
 
 #endif
